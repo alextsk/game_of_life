@@ -3,8 +3,9 @@ module Main exposing (..)
 import Debug exposing (log)
 import Array exposing (set, get, fromList, Array)
 import Html exposing (Html, program, div, h2, input, label, button)
--- import Html.Attributes exposing (..)
-import Html.Events exposing (onClick, onInput)
+-- import Html.Attributes as HA exposing (..)
+import Json.Decode as Json
+import Html.Events  as HE exposing (onClick, onInput, on)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Time exposing (Time)
@@ -16,7 +17,7 @@ import Random
 
 -- TODO: 
 -- X random grid generation (enter dimensions)
---   explore possibility of custom type instead of int 
+-- X do not change size of cell until generated
 --   bundle w webpack
 --   add styles
 --   make a gh-page 
@@ -25,7 +26,7 @@ import Random
 (cWidth, cHeight) = (800, 800)
 type alias Grid a = Array (Array a)
 type alias State = {cols: Int, rows: Int}
-type alias Model = {time: Time, grid: Grid Int, state: State }
+type alias Model = {time: Time, grid: Grid Int, state: State, uiState: State }
 type Msg 
     = Tick Time 
     | ChangeRows String 
@@ -33,7 +34,8 @@ type Msg
     | Generate 
     | GenValue (List (List Int))
 
-  
+initialState = State 8 8
+
 listToGrid : List (List a) -> Grid a
 listToGrid grid = 
   Array.fromList <| List.map Array.fromList grid
@@ -55,11 +57,13 @@ gridList = [
   ]
 
 grid = listToGrid gridList
-cellSize rows = cWidth // rows
+
+cellHeight rows = cHeight // rows 
+cellWidth cols = cWidth // cols
 
 init : (Model, Cmd Msg)
 init =
-  (Model 0 grid (State 8 8), Cmd.none)
+  (Model 0 grid initialState initialState, Cmd.none)
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -82,14 +86,20 @@ update msg model =
         ({model | state = newState}, Cmd.none)
     
     Generate -> 
-      let latticeGenerator = Random.list model.state.cols (
-        Random.list model.state.rows (Random.int 0 1)
+      let 
+        newModel = {model | uiState = model.state}
+        latticeGenerator = Random.list newModel.uiState.rows (
+          Random.list newModel.uiState.cols (Random.int 0 1)
         )
       in
-        (model, Random.generate GenValue latticeGenerator)    
+        (newModel, Random.generate GenValue latticeGenerator)    
 
     GenValue x -> 
       ({model | grid = listToGrid x}, Cmd.none)
+
+onChange : (String -> msg) -> Html.Attribute msg
+onChange handler =
+   HE.on "change" <| Json.map handler <| Json.at ["target", "value"] Json.string
 
 view : Model -> Html Msg
 view model = 
@@ -97,11 +107,11 @@ view model =
     h2 [] [text "Conway's game of life " ],
     label [] [
       text "columns",
-      input [onInput ChangeCols] []
+      input [onChange ChangeCols] []
     ],
     label [] [
       text "rows",
-      input [onInput ChangeRows] []
+      input [onChange ChangeRows] []
     ],
     button [onClick Generate] [text "Generate"],
     div [] [
@@ -132,7 +142,7 @@ main =
 renderGrid : Model -> Array (Html msg)
 renderGrid model = 
   Array.indexedMap (\i value -> 
-    svg [y <| toString (i * (cellSize model.state.cols))] (Array.toList <| makeRow value model.state) 
+    svg [y <| toString (i * (cellHeight model.uiState.rows))] (Array.toList <| makeRow value model.uiState) 
   ) model.grid
 
 makeRow : Array Int -> {rows: Int, cols: Int} -> Array (Svg.Svg b)
@@ -141,9 +151,9 @@ makeRow value state =
 
 makeCell i lit state = 
   rect [
-      width <| toString <| cellSize state.rows, 
-      height <| toString <| cellSize state.cols, 
-      x <| toString (i * (cellSize state.rows)),
+      width <| toString <| cellWidth state.cols, 
+      height <| toString <| cellHeight state.rows, 
+      x <| toString (i * (cellWidth state.cols)),
       fill (if lit then ("#000000") else ("#ffffff")),
       stroke "#00000022"
       ] []
