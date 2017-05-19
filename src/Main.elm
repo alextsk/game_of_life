@@ -11,14 +11,8 @@ import Svg.Attributes exposing (..)
 import Time exposing (Time)
 import Random
 
--- IDEA:
--- X grid as a list remains only on init, everything accepts an array
---   sphered top-bottom right-left
 
 -- TODO: 
--- X random grid generation (enter dimensions)
--- X do not change size of cell until generated
---   bundle w webpack
 --   add styles
 --   make a gh-page 
 
@@ -58,8 +52,8 @@ gridList = [
 
 grid = listToGrid gridList
 
-cellHeight rows = cHeight // rows 
-cellWidth cols = cWidth // cols
+cellHeight rows = round <| cHeight / (toFloat rows )
+cellWidth cols = round <| cWidth / (toFloat cols)
 
 init : (Model, Cmd Msg)
 init =
@@ -176,25 +170,25 @@ calcCellState cell x y array =
 
 aliveNeighbours x y array =
   let 
-      getRow y =
-        case get y array of 
-          Maybe.Nothing -> fromList []
-          Maybe.Just a -> a
+    getRow y =
+      case get y array of 
+        Maybe.Nothing -> fromList []
+        Maybe.Just a -> a
 
-      prevRow = getRow (y - 1) 
-      currRow = getRow y 
-      nextRow = getRow (y + 1) 
+    prevRow = getRow (y - 1) 
+    currRow = getRow y 
+    nextRow = getRow (y + 1) 
 
-      neighbours = 
-        get (x - 1) prevRow ::
-        get (  x  ) prevRow ::
-        get (x + 1) prevRow ::
-        get (x - 1) currRow ::
-        get (x + 1) currRow ::
-        get (x - 1) nextRow ::
-        get (  x  ) nextRow ::
-        get (x + 1) nextRow :: 
-        [Maybe.Nothing]
+    neighbours = 
+      get (x - 1) prevRow ::
+      get (  x  ) prevRow ::
+      get (x + 1) prevRow ::
+      get (x - 1) currRow ::
+      get (x + 1) currRow ::
+      get (x - 1) nextRow ::
+      get (  x  ) nextRow ::
+      get (x + 1) nextRow :: 
+      [Maybe.Nothing]
   in 
     List.foldl maybeToInt 0 neighbours
 
