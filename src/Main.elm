@@ -1,9 +1,9 @@
 module Main exposing (..)
 
-import Debug exposing (log)
+
 import Array exposing (set, get, fromList, Array)
-import Html exposing (Html, program, div, h2, input, label, button)
--- import Html.Attributes as HA exposing (..)
+import Html exposing (Html, program, div, h1, input, label, button, aside)
+import Html.Attributes as HA exposing (class)
 import Json.Decode as Json
 import Html.Events  as HE exposing (onClick, onInput, on)
 import Svg exposing (..)
@@ -28,6 +28,7 @@ type Msg
     | Generate 
     | GenValue (List (List Int))
 
+initialState : State
 initialState = State 8 8
 
 listToGrid : List (List a) -> Grid a
@@ -50,9 +51,13 @@ gridList = [
   [1,1,1,0,0,1,0,0]
   ]
 
+grid : Grid Int
 grid = listToGrid gridList
 
+cellHeight : Int -> Int
 cellHeight rows = round <| cHeight / (toFloat rows )
+
+cellWidth : Int -> Int
 cellWidth cols = round <| cWidth / (toFloat cols)
 
 init : (Model, Cmd Msg)
@@ -95,32 +100,47 @@ onChange : (String -> msg) -> Html.Attribute msg
 onChange handler =
    HE.on "change" <| Json.map handler <| Json.at ["target", "value"] Json.string
 
+
 view : Model -> Html Msg
-view model = 
-  div [] [
-    h2 [] [text "Conway's game of life " ],
-    label [] [
-      text "columns",
-      input [onChange ChangeCols] []
+view model = div [HA.class "container"] [
+    div [HA.class "header"] [
+      h1 [HA.class "header__title"] [text "Conway's game of life " ]
     ],
-    label [] [
-      text "rows",
-      input [onChange ChangeRows] []
+    aside [HA.class "control-panel"] [
+      div [HA.class "form"] [
+        div [HA.class "form-element"] [
+          label [HA.class "label"] [
+            text "columns",
+            input [onChange ChangeCols] []
+          ]
+        ],
+        div [HA.class "form-element"] [
+          label [HA.class "label"] [
+            text "rows",
+            input [onChange ChangeRows] []
+          ]
+        ],
+        div [HA.class "form-element"] [
+          button [onClick Generate, HA.class "btn"] [text "Generate"]
+        ]
+      ]
     ],
-    button [onClick Generate] [text "Generate"],
-    div [] [
+    
+    div [HA.class "content"] [
       svg
-      [ version "1.1", width <| toString cWidth, height <| toString cHeight
+      [ version "1.1", width <| toString cWidth, height <| toString cHeight, viewBox "0 0 800 800"
       ] 
       ( Array.toList <| renderGrid  model
       )
     ]
   ] 
+  
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
   Time.every Time.second Tick
 
+main : Program Never Model Msg
 main =
   Html.program
     { init = init
@@ -143,23 +163,25 @@ makeRow : Array Int -> {rows: Int, cols: Int} -> Array (Svg.Svg b)
 makeRow value state = 
   Array.indexedMap (\i value -> makeCell i (if value==1 then True else False) state) value
 
+makeCell : Int -> Bool -> State -> Svg msg
 makeCell i lit state = 
   rect [
       width <| toString <| cellWidth state.cols, 
       height <| toString <| cellHeight state.rows, 
       x <| toString (i * (cellWidth state.cols)),
-      fill (if lit then ("#000000") else ("#ffffff")),
-      stroke "#00000022"
+      Svg.Attributes.class (if lit then ("on") else ("off"))
       ] []
 
 -- UPDATE 
 
+nextState : Array (Array Int) -> Array (Array number)
 nextState currentState = 
   currentState
   |>  Array.indexedMap (\y row -> 
         Array.indexedMap (\x cell -> calcCellState cell x y currentState) row
       )
 
+calcCellState : Int -> Int -> Int -> Array (Array Int) -> number
 calcCellState cell x y array =
   let anoc = aliveNeighbours x y array 
   in
@@ -168,6 +190,7 @@ calcCellState cell x y array =
       1 -> if anoc > 3 || anoc < 2 then 0 else 1
       _ -> 1
 
+aliveNeighbours : Int -> Int -> Array (Array Int) -> Int
 aliveNeighbours x y array =
   let 
     getRow y =
