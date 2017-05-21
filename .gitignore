@@ -1,4 +1,6 @@
 /elm-stuff
+/.publish
+/game_of_life
 /dist
 /tmp
 /node_modules

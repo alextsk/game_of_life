@@ -4,19 +4,25 @@
     "client": "webpack-dev-server --port 3000"
   },
   "dependencies": {
+    "browser-sync": "^2.18.12",
     "css-loader": "^0.28.1",
+    "del": "^2.2.2",
     "elm-webpack-loader": "^4.3.1",
     "file-loader": "^0.11.1",
+    "gulp": "^3.9.1",
+    "gulp-changed": "^3.1.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-css-rebase-urls": "^0.0.5",
+    "gulp-gh-pages": "^0.5.4",
+    "gulp-sass": "^3.1.0",
+    "gulp-util": "^3.0.8",
     "node-sass": "^4.5.3",
     "sass-loader": "^6.0.5",
     "style-loader": "^0.17.0",
     "uglify-js": "3.0.0",
     "url-loader": "^0.5.8",
     "webpack": "^2.5.1",
-    "webpack-dev-server": "^2.4.5"
-  },
-  "devDependencies": {
-    "uglify-js": "^3.0.0",
-    "uglifyjs-webpack-plugin": "^0.4.3"
+    "webpack-dev-server": "^2.4.5",
+    "webpack-stream": "^3.2.0"
   }
 }

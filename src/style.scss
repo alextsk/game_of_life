@@ -1,4 +1,4 @@
-$accent: rgba(233, 233, 244, 0.4);
+$accent: rgb(233, 233, 12);
 $break-small: 800px;
 
 @import "mixins/font-face";
@@ -45,7 +45,7 @@ rect {
   transition: .7s fill;
   stroke: #cccccc;
   &.on{
-    fill: #008412;
+    fill: $accent;
   }
   &.off{
     fill: #ffffff;
