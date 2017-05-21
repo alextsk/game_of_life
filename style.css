@@ -1,0 +1,93 @@
+@font-face {
+  font-family: "Fira-Sans";
+  font-weight: normal;
+  font-style: normal;
+  src: url("src/assets/fonts/FiraSans-Regular.eot");
+  src: url("src/assets/fonts/FiraSans-Regular.eot?#iefix") format("embedded-opentype"), url("src/assets/fonts/FiraSans-Regular.woff") format("woff"), url("src/assets/fonts/FiraSans-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Fira-Sans";
+  font-weight: 600;
+  font-style: normal;
+  src: url("src/assets/fonts/FiraSans-SemiBold.eot");
+  src: url("src/assets/fonts/FiraSans-SemiBold.eot?#iefix") format("embedded-opentype"), url("src/assets/fonts/FiraSans-SemiBold.woff") format("woff"), url("src/assets/fonts/FiraSans-SemiBold.ttf") format("truetype");
+}
+
+body {
+  font-family: Fira-Sans, sans-serif;
+}
+
+.form-element:not(:last-of-type) {
+  margin-bottom: 10px;
+}
+
+.container {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: 300px 300px auto;
+  grid-template-rows: 100px auto;
+  grid-template-areas: "masthead masthead  masthead"  "controls content content"  "controls content  content";
+}
+
+@media screen and (max-width: 800px) {
+  .container {
+    grid-template-areas: "masthead masthead masthead"  "controls .. .."  "content content  content";
+  }
+}
+
+.content {
+  overflow: hidden;
+  grid-area: content;
+}
+
+.control-panel {
+  grid-area: controls;
+}
+
+rect {
+  transition: .7s fill;
+  stroke: #cccccc;
+}
+
+rect.on {
+  fill: #e9e90c;
+}
+
+rect.off {
+  fill: #ffffff;
+}
+
+.header {
+  grid-area: masthead;
+  background-color: #444444;
+  display: flex;
+  align-items: center;
+}
+
+.header__title {
+  color: #ffffff;
+  font-weight: 600;
+  margin-left: 2rem;
+}
+
+.label {
+  display: flex;
+  justify-content: flex-end;
+  background-color: rgba(233, 233, 244, 0.4);
+}
+
+.label input {
+  margin-left: 10px;
+}
+
+.btn {
+  padding: 12px 30px;
+  background-color: green;
+  border: none;
+  width: 100%;
+  color: #ffffff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  text-transform: uppercase;
+}
